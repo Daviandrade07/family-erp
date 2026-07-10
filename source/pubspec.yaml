@@ -1,0 +1,62 @@
+name: family_erp
+description: ERP Familiar Inteligente — finanças, despensa, compras e IA para toda a família.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Backend / Auth
+  supabase_flutter: ^2.5.6
+
+  # State management & routing
+  flutter_riverpod: ^2.5.1
+  go_router: ^14.2.0
+
+  # UI
+  google_fonts: ^6.2.1
+  fl_chart: ^0.68.0
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.0
+
+  # Device capabilities
+  local_auth: ^2.2.0
+  image_picker: ^1.1.2
+  geolocator: ^12.0.0
+  record: ^5.1.2
+  path_provider: ^2.1.3
+  share_plus: ^10.0.2
+
+  # Networking (Claude API / proxy)
+  http: ^1.2.0
+  http_parser: ^4.0.2
+
+  # QR do 2FA
+  qr_flutter: ^4.1.0
+
+  # Utils
+  intl: ^0.20.2
+  uuid: ^4.4.0
+  collection: ^1.18.0
+  shared_preferences: ^2.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+# O record 5.2.1 trava record_linux em 0.7.x, cuja assinatura de
+# hasPermission() é incompatível com record_platform_interface 1.6.0 e quebra
+# a compilação Android/AOT. Forçamos uma versão de record_linux já alinhada
+# (não compilamos para Linux; é só para o type-check do Dart passar).
+dependency_overrides:
+  record_linux: 1.3.1
+
+flutter:
+  uses-material-design: true

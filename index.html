@@ -60,6 +60,39 @@
       var el = document.getElementById('loading');
       if (el) el.remove();
     });
+
+    // Auto-atualização do PWA: garante que ninguém fique preso numa versão
+    // antiga em cache (era o que impedia novos usuários de entrar). Ao detectar
+    // um novo service worker instalado, ativa e recarrega uma vez.
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+      var reloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (reloaded) return;
+        reloaded = true;
+        window.location.reload();
+      });
+      function checkForUpdate() {
+        navigator.serviceWorker.getRegistration().then(function (reg) {
+          if (!reg) return;
+          reg.update();
+          if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          reg.addEventListener('updatefound', function () {
+            var nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener('statechange', function () {
+              if (nw.state === 'installed') {
+                nw.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          });
+        });
+      }
+      window.addEventListener('load', checkForUpdate);
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') checkForUpdate();
+      });
+    })();
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

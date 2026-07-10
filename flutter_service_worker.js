@@ -29,3 +29,8 @@ self.addEventListener('activate', (event) => {
     })()
   );
 });
+
+// Auto-update (injetado): novas versoes ativam na hora — ninguem fica preso em cache antigo.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('message', (e) => { if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting(); });
+

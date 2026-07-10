@@ -68,6 +68,23 @@
   </div>
   <noscript>Ative o JavaScript para usar o Família ERP.</noscript>
   <script>
+    // Atualiza apenas os arquivos do PWA; não toca nos dados do usuário.
+    (function () {
+      var version = 'family-erp-assets-v5';
+      var key = 'family-erp-assets-version';
+      if (window.localStorage && localStorage.getItem(key) !== version) {
+        localStorage.setItem(key, version);
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (reg) { return reg.unregister(); }));
+          }).then(function () { return 'caches' in window ? caches.keys() : []; })
+            .then(function (names) { return Promise.all(names.map(function (name) { return caches.delete(name); })); })
+            .then(function () { location.reload(); });
+        }
+      }
+    }());
+  </script>
+  <script>
     window.addEventListener('flutter-first-frame', function () {
       var el = document.getElementById('loading');
       if (el) el.remove();

@@ -17,12 +17,9 @@
   <base href="/family-erp/">
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Família ERP: organização financeira, metas e cuidado da casa em família.">
-  <meta name="theme-color" content="#101827">
-  <meta name="color-scheme" content="dark light">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="description" content="ERP doméstico inteligente: finanças da família, despensa, compras e assistente com IA.">
+  <meta name="theme-color" content="#09090B">
 
   <!-- iOS / instalar na tela inicial -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -34,72 +31,35 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>Família ERP — cuidado da casa em família</title>
+  <title>Família ERP</title>
   <link rel="manifest" href="manifest.json">
 
   <style>
-    :root { color-scheme: dark; }
-    body { background-color: #101827; margin: 0; }
+    body { background-color: #09090B; margin: 0; }
     #loading {
       position: fixed; inset: 0; display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 18px;
-      background: radial-gradient(circle at 50% 0%, #1b2a45 0%, #101827 55%, #0b111d 100%); color: #F4F4F5;
+      background: #09090B; color: #F4F4F5;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     #loading .dot {
       width: 46px; height: 46px; border-radius: 14px;
-      background: linear-gradient(135deg, #f08a5d, #7c6df2);
+      background: linear-gradient(135deg, #00E676, #3D8BFF);
       animation: pulse 1s ease-in-out infinite alternate;
     }
-    #loading .label { font-weight: 650; letter-spacing: .01em; }
-    #loading .hint { color: #aebbd0; font-size: 13px; }
-    #load-error { display: none; max-width: 360px; text-align: center; line-height: 1.5; }
-    #load-error button { border: 0; border-radius: 999px; padding: 11px 18px; margin-top: 14px; background: #f08a5d; color: #101827; font-weight: 700; cursor: pointer; }
-    @media (prefers-reduced-motion: reduce) { #loading .dot { animation: none; } }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.12); } }
   </style>
 </head>
 <body>
   <div id="loading">
     <div class="dot"></div>
-    <div class="label">Família ERP</div>
-    <div class="hint" aria-live="polite">Preparando seu espaço seguro…</div>
-    <div id="load-error" role="alert">Não foi possível carregar o app agora.<br>Verifique sua conexão e tente novamente.<br><button type="button" onclick="location.reload()">Tentar novamente</button></div>
+    <div>Família ERP</div>
   </div>
-  <noscript>Ative o JavaScript para usar o Família ERP.</noscript>
-  <script>
-    // Atualiza apenas os arquivos do PWA; não toca nos dados do usuário.
-    (function () {
-      var version = 'family-erp-assets-v5';
-      var key = 'family-erp-assets-version';
-      if (window.localStorage && localStorage.getItem(key) !== version) {
-        localStorage.setItem(key, version);
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function (regs) {
-            return Promise.all(regs.map(function (reg) { return reg.unregister(); }));
-          }).then(function () { return 'caches' in window ? caches.keys() : []; })
-            .then(function (names) { return Promise.all(names.map(function (name) { return caches.delete(name); })); })
-            .then(function () { location.reload(); });
-        }
-      }
-    }());
-  </script>
   <script>
     window.addEventListener('flutter-first-frame', function () {
       var el = document.getElementById('loading');
       if (el) el.remove();
     });
-    function showLoadError() {
-      var loading = document.getElementById('loading');
-      var error = document.getElementById('load-error');
-      if (!loading || !error) return;
-      var dot = loading.querySelector('.dot');
-      var hint = loading.querySelector('.hint');
-      if (dot) dot.style.display = 'none';
-      if (hint) hint.style.display = 'none';
-      error.style.display = 'block';
-    }
-    window.setTimeout(showLoadError, 15000);
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:family_erp/services/open_finance/open_finance_contract.dart';
+import 'package:kinfin/services/open_finance/open_finance_contract.dart';
 
 void main() {
   test('conexão ativa permite leitura e revogação', () {

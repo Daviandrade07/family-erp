@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:family_erp/services/recurrence/recurrence_engine.dart';
+import 'package:kinfin/services/recurrence/recurrence_engine.dart';
 
 DateTime d(int y, int m, int day) => DateTime(y, m, day);
 

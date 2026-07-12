@@ -2,8 +2,8 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "family-erp-web",
-      "cwd": "C:\\Users\\andra\\Projects\\family_erp",
+      "name": "kinfin-web",
+      "cwd": "C:\\Users\\andra\\aplicativo_ClaudeCode",
       "runtimeExecutable": "flutter",
       "runtimeArgs": [
         "run",

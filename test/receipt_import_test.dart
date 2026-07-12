@@ -1,6 +1,6 @@
-import 'package:family_erp/data/models/models.dart';
-import 'package:family_erp/services/ai/ocr_service.dart';
-import 'package:family_erp/services/receipt_import_service.dart';
+import 'package:kinfin/data/models/models.dart';
+import 'package:kinfin/services/ai/ocr_service.dart';
+import 'package:kinfin/services/receipt_import_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fakes.dart';

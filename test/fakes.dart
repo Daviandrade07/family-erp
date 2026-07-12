@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:family_erp/data/models/models.dart';
-import 'package:family_erp/data/repositories/repositories.dart';
+import 'package:kinfin/data/models/models.dart';
+import 'package:kinfin/data/repositories/repositories.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Fakes manuais compartilhados pelos testes da micro-etapa 0.2.

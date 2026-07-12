@@ -1,4 +1,4 @@
-import 'package:family_erp/services/ai/write_safety.dart';
+import 'package:kinfin/services/ai/write_safety.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 

@@ -21,3 +21,7 @@ linux/
 .env*
 # ...mas o template sem segredos deve ser versionado:
 !.env.example
+
+# Estado local do Supabase CLI (nao deve ser versionado)
+supabase/.temp/
+supabase/.branches/

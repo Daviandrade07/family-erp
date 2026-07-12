@@ -39,7 +39,7 @@ class SettingsScreen extends ConsumerWidget {
     // armazena nem vê rosto/digital. Pedimos uma confirmação antes de ativar
     // para evitar deixar alguém bloqueado por engano.
     final ok = await ref.read(biometricServiceProvider).authenticate(
-          reason: 'Confirme para ativar a proteção do Família ERP',
+          reason: 'Confirme para ativar a proteção do Kinfin',
         );
     if (!context.mounted) return;
     if (!ok) {
@@ -523,7 +523,7 @@ class SettingsScreen extends ConsumerWidget {
           // Carimbo de versão: confirma num relance se o app está atualizado
           // (útil quando o navegador segura uma versão antiga em cache).
           Center(
-            child: Text('Família ERP · atualizado em 06/07/2026',
+            child: Text('Kinfin · atualizado em 06/07/2026',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: Theme.of(context).disabledColor)),
           ),

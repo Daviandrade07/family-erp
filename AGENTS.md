@@ -1,4 +1,4 @@
-# Regras permanentes do Família ERP
+# Regras permanentes do Kinfin
 
 ## Forma de trabalhar
 

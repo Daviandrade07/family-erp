@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Family ERP Design System.
+/// Kinfin Design System.
 ///
 /// Identidade "Viva Casa": calma, humana e precisa. A marca usa índigo para
 /// confiança, coral para ação e laguna para informação; verde fica reservado

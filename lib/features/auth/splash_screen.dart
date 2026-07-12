@@ -37,7 +37,7 @@ class SplashScreen extends StatelessWidget {
                     curve: Curves.easeInOut),
             const SizedBox(height: 24),
             Text(
-              'Família ERP',
+              'Kinfin',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: AppColors.darkTextPrimary,
                     fontWeight: FontWeight.w800,

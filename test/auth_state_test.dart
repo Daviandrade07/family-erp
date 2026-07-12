@@ -1,5 +1,5 @@
-import 'package:family_erp/data/repositories/repositories.dart';
-import 'package:family_erp/features/auth/auth_controller.dart';
+import 'package:kinfin/data/repositories/repositories.dart';
+import 'package:kinfin/features/auth/auth_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

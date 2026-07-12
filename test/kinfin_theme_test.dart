@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:family_erp/core/theme/app_theme.dart';
-import 'package:family_erp/core/theme/kinfin_theme.dart';
-import 'package:family_erp/core/widgets/kinfin_scope.dart';
-import 'package:family_erp/features/settings/usage_mode_controller.dart';
+import 'package:kinfin/core/theme/app_theme.dart';
+import 'package:kinfin/core/theme/kinfin_theme.dart';
+import 'package:kinfin/core/widgets/kinfin_scope.dart';
+import 'package:kinfin/features/settings/usage_mode_controller.dart';
 
 void main() {
   setUp(() {

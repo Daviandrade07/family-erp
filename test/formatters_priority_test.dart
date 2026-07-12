@@ -1,5 +1,5 @@
-import 'package:family_erp/core/utils/formatters.dart';
-import 'package:family_erp/data/models/models.dart';
+import 'package:kinfin/core/utils/formatters.dart';
+import 'package:kinfin/data/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// T8 — Formatadores de exibição + mapeamento de prioridade (wire).

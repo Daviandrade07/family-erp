@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:family_erp/data/models/models.dart';
-import 'package:family_erp/data/repositories/repositories.dart';
-import 'package:family_erp/services/ai/assistant_tools.dart';
+import 'package:kinfin/data/models/models.dart';
+import 'package:kinfin/data/repositories/repositories.dart';
+import 'package:kinfin/services/ai/assistant_tools.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 

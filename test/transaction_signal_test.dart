@@ -1,4 +1,4 @@
-import 'package:family_erp/data/models/models.dart';
+import 'package:kinfin/data/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// T2 — Convenção de sinal de transação.

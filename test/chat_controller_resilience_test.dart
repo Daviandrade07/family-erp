@@ -1,4 +1,4 @@
-import 'package:family_erp/features/chat/chat_controller.dart';
+import 'package:kinfin/features/chat/chat_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

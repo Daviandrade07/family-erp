@@ -46,7 +46,7 @@ class AccountsScreen extends ConsumerWidget {
                     ?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 10),
             const Text(
-              'Quando esta conexão estiver disponível, você escolherá o banco e será levado ao aplicativo dele para confirmar o consentimento. O Família ERP não pede nem guarda sua senha bancária.',
+              'Quando esta conexão estiver disponível, você escolherá o banco e será levado ao aplicativo dele para confirmar o consentimento. O Kinfin não pede nem guarda sua senha bancária.',
             ),
             const SizedBox(height: 14),
             const Text(

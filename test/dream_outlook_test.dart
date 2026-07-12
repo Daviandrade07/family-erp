@@ -1,5 +1,5 @@
-import 'package:family_erp/data/models/models.dart';
-import 'package:family_erp/services/dream_outlook_service.dart';
+import 'package:kinfin/data/models/models.dart';
+import 'package:kinfin/services/dream_outlook_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 

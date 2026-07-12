@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../theme/app_theme.dart';
 
-/// Acesso à assistente da família — a BÚSSOLA, símbolo próprio do Family ERP
+/// Acesso à assistente da família — a BÚSSOLA, símbolo próprio do Kinfin
 /// (guia e direção). Botão compacto e VISÍVEL em qualquer tela/tema, sem
 /// competir com o conteúdo.
 class AssistantButton extends StatelessWidget {

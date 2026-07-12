@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:family_erp/services/ai/ocr_service.dart';
+import 'package:kinfin/services/ai/ocr_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

@@ -5,7 +5,7 @@ import '../data/repositories/repositories.dart';
 import 'ai/ai_write_tick.dart';
 import 'dream_outlook_service.dart';
 
-/// Motor de insights do Family ERP — transforma os números do mês numa
+/// Motor de insights do Kinfin — transforma os números do mês numa
 /// HISTÓRIA em 5 respostas, sempre nesta ordem:
 ///   1. O que aconteceu?  2. Por quê?  3. Preciso me preocupar?
 ///   4. Próximo passo     5. Como isso afeta meu sonho?

@@ -1,4 +1,4 @@
-# Família ERP — ERP Familiar Inteligente 🏠
+# Kinfin — ERP Familiar Inteligente 🏠
 
 Plataforma premium de gestão doméstica com IA: finanças compartilhadas, orçamentos preditivos, despensa, lista de compras otimizada por geolocalização, cardápio semanal e assistente conversacional.
 
@@ -9,7 +9,7 @@ Plataforma premium de gestão doméstica com IA: finanças compartilhadas, orça
 ## Estrutura
 
 ```
-family_erp/
+kinfin/
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 0001_schema.sql              # Tabelas, enums, FKs, índices

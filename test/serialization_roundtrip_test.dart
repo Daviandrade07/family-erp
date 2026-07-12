@@ -1,4 +1,4 @@
-import 'package:family_erp/data/models/models.dart';
+import 'package:kinfin/data/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// T7 — Round-trip de serialização dos modelos que espelham o banco.

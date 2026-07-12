@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:family_erp/features/mode/mode_scope.dart';
-import 'package:family_erp/features/settings/usage_mode_controller.dart';
+import 'package:kinfin/features/mode/mode_scope.dart';
+import 'package:kinfin/features/settings/usage_mode_controller.dart';
 
 void main() {
   group('scopeUserId — regra pura de escopo', () {

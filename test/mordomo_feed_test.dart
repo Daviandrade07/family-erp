@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:family_erp/services/mordomo/suggestion.dart';
+import 'package:kinfin/services/mordomo/suggestion.dart';
 
 Suggestion s(
   String id, {

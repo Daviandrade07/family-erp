@@ -41,7 +41,7 @@ class FamilyErpApp extends ConsumerWidget {
     final accent = ref.watch(accentColorProvider);
 
     return MaterialApp.router(
-      title: 'Família ERP',
+      title: 'Kinfin',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(accent: accent),
       darkTheme: AppTheme.dark(accent: accent),

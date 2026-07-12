@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:family_erp/data/models/models.dart';
-import 'package:family_erp/services/categories/category_rules.dart';
+import 'package:kinfin/data/models/models.dart';
+import 'package:kinfin/services/categories/category_rules.dart';
 
 Category cat(String name, TransactionType type,
         {String? id, bool archived = false, bool isDefault = false}) =>

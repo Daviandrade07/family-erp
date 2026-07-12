@@ -51,7 +51,7 @@ class AuthRepository {
 
     final res = await _client.auth.mfa.enroll(
       factorType: FactorType.totp,
-      friendlyName: 'Família ERP · ${DateTime.now().millisecondsSinceEpoch}',
+      friendlyName: 'Kinfin · ${DateTime.now().millisecondsSinceEpoch}',
     );
     return (
       factorId: res.id,

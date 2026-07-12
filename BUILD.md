@@ -1,4 +1,4 @@
-# BUILD — Família ERP
+# BUILD — Kinfin
 
 Guia canônico de build. Toda configuração entra por `--dart-define` no momento
 do build (ver `lib/core/config/env.dart`); não há `.env` lido em runtime.
@@ -16,7 +16,7 @@ Lista de variáveis e o que é proibido em produção: ver `.env.example`.
 | `SUPABASE_URL` | ✅ obrigatório | ✅ obrigatório | URL do projeto Supabase |
 | `SUPABASE_ANON_KEY` | ✅ obrigatório | ✅ obrigatório | chave publishable/anon (pública por design) |
 | `AI_PROXY_URL` | ✅ recomendado | ✅ recomendado | habilita a IA via proxy (sem chave no app) |
-| `--base-href /family-erp/` | ✅ (GitHub Pages) | — | só web; casa com o subcaminho do Pages |
+| `--base-href /kinfin/` | ✅ (GitHub Pages) | — | só web; casa com o subcaminho do Pages |
 
 **Proibido em produção** (nunca passar nestes builds): `AI_API_KEY` (gsk_ no
 cliente), `DEV_EMAIL`, `DEV_PASSWORD`. Detalhes em `.env.example`.
@@ -24,7 +24,7 @@ cliente), `DEV_EMAIL`, `DEV_PASSWORD`. Detalhes em `.env.example`.
 ## Build Web (PWA / GitHub Pages)
 
 ```powershell
-flutter build web --release --base-href /family-erp/ `
+flutter build web --release --base-href /kinfin/ `
   --dart-define=SUPABASE_URL=https://SEU_PROJETO.supabase.co `
   --dart-define=SUPABASE_ANON_KEY=SUA_ANON_KEY `
   --dart-define=AI_PROXY_URL=https://SEU_PROJETO.supabase.co/functions/v1/ai-proxy
@@ -51,7 +51,7 @@ keys — suficiente para instalar no próprio aparelho; **não** para a Play Sto
 
 ## Diferença web × APK
 
-- **web** usa `--base-href /family-erp/` (subcaminho do GitHub Pages); o APK não.
+- **web** usa `--base-href /kinfin/` (subcaminho do GitHub Pages); o APK não.
 - **APK** exige `JAVA_HOME`/`ANDROID_HOME`; o web não.
 - Os `--dart-define` de Supabase e IA são **os mesmos** nos dois.
 

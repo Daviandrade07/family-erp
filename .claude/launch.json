@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "family-erp-web",
+      "cwd": "C:\\Users\\andra\\Projects\\family_erp",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": [
+        "run",
+        "-d",
+        "web-server",
+        "--web-hostname",
+        "localhost",
+        "--web-port",
+        "8099",
+        "--dart-define=SUPABASE_URL=https://kdmlcwiqnyoqlgugkdzs.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=sb_publishable_MPNGZBiwJ7cv_MwHhS8FDQ_H_ILvCKF",
+        "--dart-define=AI_PROXY_URL=https://kdmlcwiqnyoqlgugkdzs.supabase.co/functions/v1/ai-proxy"
+      ],
+      "port": 8099
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+-- ============================================================
+-- DESATIVADO — não use este arquivo.
+-- ============================================================
+-- Antes, este seed inseria mercados FICTÍCIOS da capital de São Paulo
+-- (região errada para o app, que é de Indaiatuba-SP). Isso fazia o
+-- recomendador calcular deslocamentos absurdos e divergir do OCR/IA.
+--
+-- A fonte canônica única de `markets` agora é:
+--     supabase/seed/markets_indaiatuba.sql
+--
+-- Rode APENAS aquele seed no setup. Este arquivo foi esvaziado de propósito
+-- (não insere nada) para não contaminar ambientes novos.

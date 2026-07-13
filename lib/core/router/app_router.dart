@@ -160,7 +160,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
           path: '/inventory',
           pageBuilder: (_, __) => _slidePage(const InventoryScreen())),
-      // Navegação principal: 4 abas (Início · Finanças · Casa · Perfil).
+      // Navegação principal: 5 abas (Início · Finanças · IA · Casa · Perfil).
+      // A aba IA renderiza o ChatScreen diretamente como raiz (sem ser empurrado):
+      // por não estar na pilha do Navigator, a AppBar não ganha seta de voltar.
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => _AppShell(shell: shell),
         branches: [
@@ -171,6 +173,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             GoRoute(
                 path: '/finance',
                 builder: (_, __) => const FinanceHubScreen()),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+                path: '/ia',
+                builder: (_, __) => const ChatScreen(showAlertsBar: true)),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/casa', builder: (_, __) => const CasaScreen()),
@@ -208,9 +215,13 @@ class _AppShell extends StatelessWidget {
                     selectedIcon: Icon(Icons.home_rounded),
                     label: Text('Início')),
                 NavigationRailDestination(
-                    icon: Icon(Icons.account_balance_wallet_outlined),
-                    selectedIcon: Icon(Icons.account_balance_wallet_rounded),
+                    icon: Icon(Icons.swap_vert_rounded),
+                    selectedIcon: Icon(Icons.swap_vert_rounded),
                     label: Text('Finanças')),
+                NavigationRailDestination(
+                    icon: Icon(Icons.chat_bubble_outline_rounded),
+                    selectedIcon: Icon(Icons.chat_bubble_rounded),
+                    label: Text('IA')),
                 NavigationRailDestination(
                     icon: Icon(Icons.home_work_outlined),
                     selectedIcon: Icon(Icons.home_work_rounded),
@@ -237,8 +248,10 @@ class _AppShell extends StatelessWidget {
         items: const [
           FloatingNavItem(
               Icons.home_outlined, Icons.home_rounded, 'Início'),
-          FloatingNavItem(Icons.account_balance_wallet_outlined,
-              Icons.account_balance_wallet_rounded, 'Finanças'),
+          FloatingNavItem(Icons.swap_vert_rounded,
+              Icons.swap_vert_rounded, 'Finanças'),
+          FloatingNavItem(Icons.chat_bubble_outline_rounded,
+              Icons.chat_bubble_rounded, 'IA'),
           FloatingNavItem(
               Icons.home_work_outlined, Icons.home_work_rounded, 'Casa'),
           FloatingNavItem(

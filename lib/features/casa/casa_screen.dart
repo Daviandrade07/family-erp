@@ -4,10 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/theme/kinfin_theme.dart';
+import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_widgets.dart';
 import '../../core/widgets/assistant_button.dart';
+import '../../data/models/models.dart';
+import '../../data/repositories/repositories.dart';
+import '../../services/ai/ai_write_tick.dart';
 import '../../services/alerts_service.dart';
+import '../mode/mode_switch.dart';
 import '../settings/usage_mode_controller.dart';
+
+/// Despesas recentes disponíveis para dividir entre a família (mesma fonte real
+/// já usada em Finanças — nada fabricado).
+final _recentExpensesProvider = FutureProvider.autoDispose<List<Transaction>>((ref) {
+  ref.watch(aiWriteTickProvider);
+  return ref.watch(transactionRepositoryProvider).recentExpenses(days: 30);
+});
 
 /// Casa = o cluster da família: despensa, lista de compras e cardápio num só
 /// lugar. Só aparece quando o usuário quer gerir a casa (níveis de uso).
@@ -28,7 +41,14 @@ class CasaScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Casa'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Casa'),
+            SizedBox(width: 10),
+            ModeChip(),
+          ],
+        ),
         actions: const [AssistantButton()],
       ),
       body: ListView(
@@ -66,6 +86,11 @@ class CasaScreen extends StatelessWidget {
                 ),
               ),
             ),
+          const SizedBox(height: 4),
+          Text('Família',
+              style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 12),
+          const _DivideExpenseCard(),
           const SizedBox(height: 8),
           const _CasaDreamLink(),
         ]
@@ -75,6 +100,121 @@ class CasaScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Entrada "Dividir despesa entre a família" — ADITIVA ao acesso que já existe
+/// em Finanças (tocar numa transação recente). Como a `AllocateExpenseScreen`
+/// precisa de UMA transação, aqui abrimos um seletor de despesas recentes reais
+/// e, ao escolher, empurramos a mesma rota `/transactions/allocate` já usada.
+class _DivideExpenseCard extends StatelessWidget {
+  const _DivideExpenseCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return AppCard(
+      onTap: () => _showDivideExpensePicker(context),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: KinFinColors.shared.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.groups_2_outlined, color: KinFinColors.shared),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Dividir despesa entre a família',
+                    style: text.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                Text('Escolha uma despesa recente para ratear entre todos',
+                    style: text.labelSmall),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right_rounded),
+        ],
+      ),
+    );
+  }
+}
+
+/// Folha inferior que lista as despesas recentes reais. Ao tocar numa, navega
+/// para a tela de alocação já existente (validação de 100% intacta).
+Future<void> _showDivideExpensePicker(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) => Consumer(
+      builder: (context, ref, _) {
+        final text = Theme.of(context).textTheme;
+        final expenses = ref.watch(_recentExpensesProvider);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Qual despesa dividir?',
+                    style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: 12),
+                expenses.when(
+                  loading: () => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 28),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (_, __) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text('Não foi possível carregar as despesas agora.',
+                        style: text.bodyMedium),
+                  ),
+                  data: (list) {
+                    if (list.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                            'Nenhuma despesa recente para dividir. Registre um '
+                            'gasto e ele aparece aqui.',
+                            style: text.bodyMedium),
+                      );
+                    }
+                    return Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: list.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (context, i) {
+                          final tx = list[i];
+                          return ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(tx.description ?? tx.category,
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
+                            subtitle: Text('${tx.date.dayMonth} · ${tx.category}'),
+                            trailing: Text('-${tx.amount.brl}',
+                                style: text.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w800)),
+                            onTap: () {
+                              Navigator.of(sheetContext).pop();
+                              context.push('/transactions/allocate', extra: tx);
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }
 
 /// A ponte Casa → sonho: uma linha discreta que lembra que cuidar da casa

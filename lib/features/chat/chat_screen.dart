@@ -25,7 +25,12 @@ import 'chat_controller.dart';
 // compartilhados com o Registro Rápido (P2), que fala com o mesmo cérebro.
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.showAlertsBar = false});
+
+  /// Mostra a barra de "alertas personalizados" no topo — usada quando o chat é
+  /// a aba IA da navegação principal. Fica desligada quando o ChatScreen é
+  /// aberto como rota empurrada (`/chat`), onde a barra seria só ruído.
+  final bool showAlertsBar;
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -194,6 +199,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
       body: Column(
         children: [
+          if (widget.showAlertsBar) const _AlertsBar(),
           Expanded(
             child: ListView.builder(
               controller: _scroll,
@@ -333,6 +339,55 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Barra de "alertas personalizados" no topo da conversa (mockup v2 da aba IA).
+///
+/// ESTADO HONESTO: a funcionalidade de criar alertas por conversa (ex.: "me
+/// avise se eu gastar mais de R$ 300 em delivery") ainda NÃO existe no
+/// backend/serviço — o chat hoje só interpreta lançamentos, não cria regras de
+/// alerta. Por isso a barra NÃO convida a pessoa a "pedir ao assistente para
+/// criar um alerta" (esse convite implicaria uma ação que a IA não executa e
+/// não persiste, quebrando a promessa de honestidade do app): ela apenas
+/// informa, com calma, que o recurso ainda não está disponível. Quando a lógica
+/// real de alertas via IA for implementada, esta barra passa a listar os
+/// alertas reais e ganha editar/apagar funcionais.
+class _AlertsBar extends StatelessWidget {
+  const _AlertsBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: scheme.outline),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.notifications_none_rounded,
+              size: 20, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Alertas personalizados por IA',
+                    style: text.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+                Text('Ainda não estão disponíveis — em breve.',
+                    style: text.labelSmall
+                        ?.copyWith(color: scheme.onSurfaceVariant)),
+              ],
             ),
           ),
         ],

@@ -11,8 +11,10 @@ import '../../core/widgets/money_text.dart';
 import '../../data/models/models.dart';
 import '../../data/repositories/repositories.dart';
 import '../../services/ai/ai_write_tick.dart';
+import '../../services/insights_engine.dart';
 import '../auth/auth_controller.dart';
 import '../capture/quick_capture_sheet.dart';
+import '../mode/mode_switch.dart';
 
 final _kpisProvider = FutureProvider.autoDispose<DashboardKpis>((ref) {
   ref.watch(aiWriteTickProvider);
@@ -77,7 +79,14 @@ class FinanceHubScreen extends ConsumerWidget {
     return KinFinScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Finanças'),
+          title: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Finanças'),
+              SizedBox(width: 10),
+              ModeChip(),
+            ],
+          ),
           actions: const [PrivacyToggle(), AssistantButton()],
         ),
         floatingActionButton: canWrite
@@ -126,6 +135,9 @@ class FinanceHubScreen extends ConsumerWidget {
                     title: 'Transações recentes', onSeeAll: () => context.push('/transactions')),
                 const SizedBox(height: 12),
                 _RecentTransactions(list: recent),
+
+                const SizedBox(height: 22),
+                const _AvaliacaoCard(),
 
                 // ---- Funcionalidades já existentes, preservadas ----
                 if (bills.any((b) => b.status == BillStatus.pending)) ...[
@@ -544,6 +556,113 @@ class _QuickLink extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Card "Avaliação" (saúde financeira do mês). Formato narrativo do mockup v2:
+/// selo de status + frase-veredito em destaque + próximo passo acionável.
+///
+/// DADO REAL, NÃO FICTÍCIO: alimenta-se do `monthStoryProvider` (motor de
+/// insights determinístico já existente em services/insights_engine.dart), que
+/// calcula o humor do mês (tranquilo/atenção/cuidado) e as frases a partir dos
+/// KPIs reais da família. Nada de nota "82" fabricada como no mockup — quando
+/// não há histórico, o próprio motor devolve um convite honesto para começar.
+class _AvaliacaoCard extends ConsumerWidget {
+  const _AvaliacaoCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final text = Theme.of(context).textTheme;
+    final story = ref.watch(monthStoryProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Avaliação',
+            style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 12),
+        story.when(
+          loading: () => _AvaliacaoShell(
+            child: Row(
+              children: [
+                const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2)),
+                const SizedBox(width: 12),
+                Text('Calculando a avaliação do mês...',
+                    style:
+                        text.bodySmall?.copyWith(color: KinFinColors.textMuted)),
+              ],
+            ),
+          ),
+          error: (_, __) => _AvaliacaoShell(
+            child: Text('Não foi possível avaliar o mês agora.',
+                style: text.bodySmall?.copyWith(color: KinFinColors.textMuted)),
+          ),
+          data: (s) => _AvaliacaoContent(story: s),
+        ),
+      ],
+    );
+  }
+}
+
+class _AvaliacaoContent extends StatelessWidget {
+  const _AvaliacaoContent({required this.story});
+  final MonthStory story;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final (label, color) = switch (story.mood) {
+      StoryMood.tranquilo => ('Saudável', KinFinColors.positive),
+      StoryMood.atencao => ('Atenção', KinFinColors.attention),
+      StoryMood.cuidado => ('Cuidado', KinFinColors.danger),
+    };
+    return _AvaliacaoShell(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 3),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(label,
+                style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800)),
+          ),
+          const SizedBox(height: 12),
+          Text(story.shouldIWorry,
+              style: text.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 6),
+          Text(story.nextStep,
+              style: text.bodySmall?.copyWith(color: KinFinColors.textMuted)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Superfície do card de Avaliação — mesma cara de card do resto de Finanças.
+class _AvaliacaoShell extends StatelessWidget {
+  const _AvaliacaoShell({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: KinFinColors.card,
+        border: Border.all(color: KinFinColors.line),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
     );
   }
 }

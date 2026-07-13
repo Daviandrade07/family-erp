@@ -14,8 +14,6 @@ import '../auth/aal2_guard.dart';
 import '../../services/export/csv_saver.dart';
 import '../auth/auth_controller.dart';
 import 'security_controller.dart';
-import 'simple_mode_controller.dart';
-import 'usage_mode_controller.dart';
 import 'theme_controller.dart';
 
 final familyMembersProvider =
@@ -133,7 +131,6 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
     final themeMode = ref.watch(themeModeProvider);
-    final usageMode = ref.watch(usageModeProvider);
     final accent = ref.watch(accentColorProvider);
     // Estado REAL do 2FA (fator TOTP verificado), lido do Supabase — nunca de
     // uma coluna gravável pelo app. Enquanto carrega, tratamos como inativo.
@@ -220,30 +217,9 @@ class SettingsScreen extends ConsumerWidget {
                 },
               ),
 
-              const _SectionTitle('Modo do app', subtitle: 'Escolha como deseja usar o aplicativo.'),
-              _ModeRow(
-                icon: Icons.person_outline_rounded,
-                title: 'Modo Solo',
-                subtitle: 'Gerencie suas finanças individuais.',
-                selected: usageMode == UsageMode.solo,
-                onTap: () => ref.read(usageModeProvider.notifier).set(UsageMode.solo),
-              ),
-              const SizedBox(height: 10),
-              _ModeRow(
-                icon: Icons.groups_2_outlined,
-                title: 'Modo Compartilhado',
-                subtitle: 'Gerencie finanças em família.',
-                selected: usageMode == UsageMode.grupo,
-                onTap: () => ref.read(usageModeProvider.notifier).set(UsageMode.grupo),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  'É independente do "Modo simples" abaixo — este decide quem usa; '
-                  'aquele, só como a tela é mostrada.',
-                  style: text.labelSmall?.copyWith(color: KinFinColors.textMuted),
-                ),
-              ),
+              // "Modo do app" (rádios Solo/Compartilhado) foi removido: a troca
+              // de modo agora vive só no toggle do topo da Home (ModeSwitch),
+              // evitando dois controles concorrentes para a mesma preferência.
 
               const _SectionTitle('Segurança'),
               _KinCard(
@@ -301,19 +277,10 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => context.push('/categories'),
                 ),
               ),
-              const SizedBox(height: 10),
-              _KinCard(
-                padding: EdgeInsets.zero,
-                child: SwitchListTile(
-                  value: ref.watch(simpleModeProvider),
-                  onChanged: (v) => ref.read(simpleModeProvider.notifier).set(v),
-                  activeThumbColor: scheme.primary,
-                  secondary: Icon(Icons.accessibility_new_rounded, color: scheme.primary),
-                  title: const Text('Modo simples'),
-                  subtitle: const Text('Tela inicial com botões grandes e voz em primeiro lugar '
-                      '— mais fácil de usar.'),
-                ),
-              ),
+              // "Modo simples" removido do produto (decisão do Davi): o switch
+              // que ligava a Home alternativa (SimpleHomeScreen via
+              // simpleModeProvider) saiu daqui. O provider/tela permanecem no
+              // repositório sem caminho de ativação — ver kinfin_home_screen.dart.
               const SizedBox(height: 10),
               _KinCard(
                 padding: EdgeInsets.zero,
@@ -576,20 +543,24 @@ class _ThemeSwatch extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: theme.swatchColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: selected ? theme.accent : Colors.transparent,
-                  width: 2,
+            // Swatch em círculo (mockup v2, rodada 2): AspectRatio 1 garante um
+            // círculo perfeito no espaço vertical restante da célula.
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.swatchColor,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: selected ? theme.accent : Colors.transparent,
+                    width: 2,
+                  ),
                 ),
+                alignment: Alignment.center,
+                child: selected
+                    ? Icon(Icons.check_circle_rounded, size: 18, color: theme.accent)
+                    : null,
               ),
-              alignment: Alignment.center,
-              child: selected
-                  ? Icon(Icons.check_circle_rounded, size: 18, color: theme.accent)
-                  : null,
             ),
           ),
           const SizedBox(height: 6),
@@ -597,60 +568,6 @@ class _ThemeSwatch extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 10.5, color: KinFinColors.textMuted)),
         ],
-      ),
-    );
-  }
-}
-
-class _ModeRow extends StatelessWidget {
-  const _ModeRow({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.selected,
-    required this.onTap,
-  });
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    final scheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: _KinCard(
-        child: Row(
-          children: [
-            Icon(icon, size: 22, color: scheme.primary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-                  Text(subtitle, style: text.labelSmall?.copyWith(color: KinFinColors.textMuted)),
-                ],
-              ),
-            ),
-            Container(
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: selected ? scheme.primary : KinFinColors.line, width: 2),
-                color: selected ? scheme.primary : Colors.transparent,
-              ),
-              child: selected
-                  ? Icon(Icons.circle, size: 8, color: scheme.onPrimary)
-                  : null,
-            ),
-          ],
-        ),
       ),
     );
   }

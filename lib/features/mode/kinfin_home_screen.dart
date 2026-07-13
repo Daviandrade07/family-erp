@@ -11,8 +11,6 @@ import '../../services/ai/ai_write_tick.dart';
 import '../../services/ai/budget_prediction_agent.dart';
 import '../../services/alerts_service.dart';
 import '../auth/auth_controller.dart';
-import '../dashboard/simple_home_screen.dart';
-import '../settings/simple_mode_controller.dart';
 import '../settings/usage_mode_controller.dart';
 import 'mode_scope.dart';
 import 'mode_switch.dart';
@@ -71,11 +69,9 @@ class KinFinHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Modo simples (opcional, das Configurações): mesma regra do Dashboard
-    // Casa Viva — substitui a Home por poucos botões grandes.
-    if (ref.watch(simpleModeProvider)) {
-      return const SimpleHomeScreen();
-    }
+    // "Modo simples" foi removido do produto: a Home KinFin é sempre a versão
+    // completa. (O provider/tela alternativa seguem no repo sem uso — ver
+    // settings_screen.dart.)
     final solo = ref.watch(usageModeProvider) == UsageMode.solo;
     return KinFinScope(
       child: Scaffold(

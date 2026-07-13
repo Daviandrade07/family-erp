@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../data/models/models.dart';
 import '../../features/accounts/accounts_screen.dart';
 import '../../features/auth/auth_controller.dart';
 import '../../features/casa/casa_screen.dart';
+import '../../features/finance/allocate_expense_screen.dart';
 import '../../features/finance/finance_hub_screen.dart';
 import '../../features/auth/auth_screen.dart';
 import '../../features/auth/email_otp_screen.dart';
@@ -20,7 +22,6 @@ import '../../features/debts/debts_screen.dart';
 import '../../features/mode/kinfin_home_screen.dart';
 import '../../features/recurring/recurring_screen.dart';
 import '../../features/chat/chat_screen.dart';
-import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/goals/goals_screen.dart';
 import '../../features/inventory/inventory_screen.dart';
 import '../../features/meals/meals_screen.dart';
@@ -108,6 +109,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           path: '/transactions/new',
           pageBuilder: (_, __) => _slidePage(const AddTransactionScreen())),
       GoRoute(
+          path: '/transactions/allocate',
+          pageBuilder: (_, state) => _slidePage(
+              AllocateExpenseScreen(transaction: state.extra as Transaction))),
+      GoRoute(
           path: '/analytics',
           pageBuilder: (_, __) => _slidePage(const AnalyticsScreen())),
       GoRoute(
@@ -160,7 +165,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, shell) => _AppShell(shell: shell),
         branches: [
           StatefulShellBranch(routes: [
-            GoRoute(path: '/', builder: (_, __) => const DashboardScreen()),
+            GoRoute(path: '/', builder: (_, __) => const KinFinHomeScreen()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(

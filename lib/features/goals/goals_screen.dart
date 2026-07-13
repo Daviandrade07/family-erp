@@ -11,8 +11,12 @@ import '../../data/models/models.dart';
 import '../../data/repositories/repositories.dart';
 import '../auth/auth_controller.dart';
 
-final goalsProvider = FutureProvider.autoDispose(
-    (ref) => ref.watch(goalRepositoryProvider).all());
+/// Metas da FAMÍLIA (userId null) — exclui metas pessoais de qualquer membro.
+/// Metas pessoais aparecem só na Home KinFin (Modo Solo), não aqui.
+final goalsProvider = FutureProvider.autoDispose((ref) async {
+  final all = await ref.watch(goalRepositoryProvider).all();
+  return all.where((g) => !g.isPersonal).toList();
+});
 
 class GoalsScreen extends ConsumerWidget {
   const GoalsScreen({super.key});

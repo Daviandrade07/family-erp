@@ -430,6 +430,7 @@ class FinancialGoal {
   const FinancialGoal({
     this.id,
     required this.familyId,
+    this.userId,
     required this.name,
     required this.targetAmount,
     required this.currentAmount,
@@ -438,10 +439,16 @@ class FinancialGoal {
 
   final String? id;
   final String familyId;
+
+  /// null = meta da família (visível a todos os membros). Preenchido = meta
+  /// pessoal, visível/editável só pelo dono (ver migration 0015).
+  final String? userId;
   final String name;
   final double targetAmount;
   final double currentAmount;
   final DateTime? deadline;
+
+  bool get isPersonal => userId != null;
 
   double get progress =>
       targetAmount == 0 ? 0 : (currentAmount / targetAmount).clamp(0, 1);
@@ -449,6 +456,7 @@ class FinancialGoal {
   factory FinancialGoal.fromJson(Map<String, dynamic> j) => FinancialGoal(
         id: j['id'],
         familyId: j['family_id'],
+        userId: j['user_id'],
         name: j['name'],
         targetAmount: _num(j['target_amount']),
         currentAmount: _num(j['current_amount']),
@@ -457,6 +465,7 @@ class FinancialGoal {
 
   Map<String, dynamic> toInsert() => {
         'family_id': familyId,
+        if (userId != null) 'user_id': userId,
         'name': name,
         'target_amount': targetAmount,
         'current_amount': currentAmount,

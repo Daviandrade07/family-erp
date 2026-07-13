@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/kinfin_theme.dart';
 import '../../core/utils/formatters.dart';
@@ -8,7 +9,10 @@ import '../../data/models/models.dart';
 import '../../data/repositories/repositories.dart';
 import '../../services/ai/ai_write_tick.dart';
 import '../../services/ai/budget_prediction_agent.dart';
+import '../../services/alerts_service.dart';
 import '../auth/auth_controller.dart';
+import '../dashboard/simple_home_screen.dart';
+import '../settings/simple_mode_controller.dart';
 import '../settings/usage_mode_controller.dart';
 import 'mode_scope.dart';
 import 'mode_switch.dart';
@@ -40,6 +44,24 @@ final _soloRecentProvider = FutureProvider.autoDispose<List<Transaction>>((ref) 
       .fetchPage(page: 0, filter: TransactionFilter(userId: userId));
 });
 
+/// Metas PESSOAIS do usuário logado (userId = eu). Metas da família (userId
+/// null) ficam de fora — essas vivem em `goalsProvider` (tela Metas).
+final _personalGoalsProvider =
+    FutureProvider.autoDispose<List<FinancialGoal>>((ref) async {
+  final myId = ref.watch(authControllerProvider).profile?.id;
+  if (myId == null) return const [];
+  final all = await ref.watch(goalRepositoryProvider).all();
+  return all.where((g) => g.userId == myId).toList();
+});
+
+/// Metas da FAMÍLIA (userId null) — usado no banner "Objetivos da família"
+/// do Modo Compartilhado.
+final _familyGoalsProvider =
+    FutureProvider.autoDispose<List<FinancialGoal>>((ref) async {
+  final all = await ref.watch(goalRepositoryProvider).all();
+  return all.where((g) => !g.isPersonal).toList();
+});
+
 /// Home KinFin definitiva: saudação + chave Solo/Compartilhado, o protagonista
 /// (dado grande e calmo, com sensação de rumo), o corpo específico do modo
 /// (Solo = minhas movimentações; Compartilhado = equidade + contas) e o feed do
@@ -49,6 +71,11 @@ class KinFinHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Modo simples (opcional, das Configurações): mesma regra do Dashboard
+    // Casa Viva — substitui a Home por poucos botões grandes.
+    if (ref.watch(simpleModeProvider)) {
+      return const SimpleHomeScreen();
+    }
     final solo = ref.watch(usageModeProvider) == UsageMode.solo;
     return KinFinScope(
       child: Scaffold(
@@ -64,10 +91,16 @@ class KinFinHomeScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               const _Protagonist(),
               const SizedBox(height: 18),
-              if (solo)
-                const _SoloRecent()
-              else ...[
+              if (solo) ...[
+                const _PersonalGoals(),
+                const SizedBox(height: 18),
+                const _SoloRecent(),
+                const SizedBox(height: 18),
+                const _NextSteps(),
+              ] else ...[
                 const _Equity(),
+                const SizedBox(height: 18),
+                const _FamilyGoalBanner(),
                 const SizedBox(height: 18),
                 const _HouseholdBills(),
               ],
@@ -360,6 +393,150 @@ class _CategoryDot extends StatelessWidget {
   }
 }
 
+// TODO: criar fluxo de criação de meta pessoal (será preenchido quando o usuário tiver como criar suas próprias metas)
+/// Metas pessoais (Modo Solo) — grade de 2 colunas, valor atual/alvo + barra.
+class _PersonalGoals extends ConsumerWidget {
+  const _PersonalGoals();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final goals = ref.watch(_personalGoalsProvider).valueOrNull ?? const [];
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    if (goals.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Metas pessoais',
+                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            TextButton(
+              onPressed: () => context.push('/goals'),
+              child: const Text('Ver todas'),
+            ),
+          ],
+        ),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: goals.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.5,
+          ),
+          itemBuilder: (context, i) {
+            final g = goals[i];
+            final pct = (g.progress * 100).round();
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: KinFinColors.card,
+                border: Border.all(color: KinFinColors.line),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(g.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.labelLarge?.copyWith(fontWeight: FontWeight.w600)),
+                  const Spacer(),
+                  Text.rich(TextSpan(children: [
+                    TextSpan(
+                        text: g.currentAmount.brl,
+                        style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                    TextSpan(
+                        text: ' de ${g.targetAmount.brl}',
+                        style: text.labelSmall?.copyWith(color: KinFinColors.textMuted)),
+                  ])),
+                  const SizedBox(height: 8),
+                  _ProgressLine(ratio: g.progress, pct: pct, color: scheme.primary),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Próximos passos (Modo Solo) — reaproveita o `alertsProvider` já existente
+/// (contas vencendo, risco de orçamento etc.), em vez de duplicar lógica.
+class _NextSteps extends ConsumerWidget {
+  const _NextSteps();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final alerts = ref.watch(alertsProvider).valueOrNull ?? const [];
+    final text = Theme.of(context).textTheme;
+    if (alerts.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Próximos passos',
+            style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 12),
+        _ListCard(children: [
+          for (final a in alerts.take(3)) _NextStepRow(alert: a),
+        ]),
+      ],
+    );
+  }
+}
+
+class _NextStepRow extends StatelessWidget {
+  const _NextStepRow({required this.alert});
+  final AppAlert alert;
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return InkWell(
+      onTap: alert.route == null ? null : () => context.push(alert.route!),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: KinFinColors.surfaceHigh,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Icon(alert.icon, size: 20, color: alert.color),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(alert.title,
+                      style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                  Text(alert.subtitle,
+                      style: text.labelSmall?.copyWith(color: KinFinColors.textMuted),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded,
+                size: 18, color: KinFinColors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _Equity extends ConsumerWidget {
   const _Equity();
   @override
@@ -431,6 +608,79 @@ class _Equity extends ConsumerWidget {
               ),
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// Objetivos da família (Modo Compartilhado) — banner com a primeira meta
+/// da família (mesma fonte da tela Metas: `_familyGoalsProvider`).
+class _FamilyGoalBanner extends ConsumerWidget {
+  const _FamilyGoalBanner();
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final goals = ref.watch(_familyGoalsProvider).valueOrNull ?? const [];
+    final text = Theme.of(context).textTheme;
+    if (goals.isEmpty) return const SizedBox.shrink();
+    final g = goals.first;
+    final pct = (g.progress * 100).round();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Objetivos da família',
+                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+            TextButton(
+              onPressed: () => context.push('/goals'),
+              child: const Text('Ver todos'),
+            ),
+          ],
+        ),
+        InkWell(
+          onTap: () => context.push('/goals'),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: KinFinColors.card,
+              border: Border.all(color: KinFinColors.line),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: KinFinColors.shared.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.flag_rounded,
+                      size: 20, color: KinFinColors.shared),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(g.name,
+                          style: text.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 4),
+                      Text('${g.currentAmount.brl} de ${g.targetAmount.brl}',
+                          style: text.labelSmall?.copyWith(color: KinFinColors.textMuted)),
+                      const SizedBox(height: 8),
+                      _ProgressLine(ratio: g.progress, pct: pct, color: KinFinColors.shared),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
